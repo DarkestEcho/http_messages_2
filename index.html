@@ -1,0 +1,49 @@
+﻿<!DOCTYPE html>
+<head>
+  <title>Сообщения</title>
+  <style></style>
+</head>
+<body>
+  <h1>Хранилище сообщений</h1>
+  <div id="mess-list"></div>
+  <script>
+    const mess-elem = document.querySelector("#mess-list");
+    fetch("/mess-list")
+      .then((res) => res.json())
+      .then((content) => {
+        let text = "";
+        content.forEach(
+          (item) =>
+            (text += `<li>${item.text}`)
+        );
+        mess-elem.innerHTML = `<ol id='mess-list'>${text}</ol>`;
+      });
+  </script>
+
+  <form id="mess-add-form" name="mess-add-form">
+    <h2>Форма добавления</h2>
+    <input name="messText" type="text" placeholder="Текст сообщения" /><br />
+    <input type="submit" value="Добавить" />
+  </form>
+
+  <script>
+    const add_form = document.forms[0];
+    add_form.onsubmit = () => {
+      const list = document.querySelector("#mess-list");
+      const text = add_form.elements.messText.value;
+      const newElem = document.createElement("li");
+      newElem.innerHTML = `${text}`;
+      list.prepend(newElem);
+      if (list.childElementCount > 5) list.removeChild(list.lastChild);
+
+      fetch("/add-mess", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json;charset=utf-8",
+        },
+        body: JSON.stringify({ text: text }),
+      });
+      return false;
+    };
+  </script>
+</body>
